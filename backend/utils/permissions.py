@@ -59,3 +59,12 @@ class IsAdminOrReadOnly(permissions.BasePermission):
             if i in ['ADMIN', 'SUPER']:
                 return True
         return False
+
+
+class IsAdminUser(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        for i in request.user.get_roles_values():
+            if i in ['ADMIN', 'SUPER']:
+                return True
+        return False

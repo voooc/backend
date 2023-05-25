@@ -23,6 +23,7 @@ urlpatterns = [
     path('register_email', views.RegisterEmail.as_view(), name='register_email'),
     path('logout', views.LogoutAPIView.as_view(), name='logout'),
     path('info', views.UserInfoView.as_view(), name='info'),
+    path('user_total', views.UserTotalCountView.as_view(), name='user_total'),
     re_path(r'api/login/$', obtain_jwt_token),  # jwt认证
     re_path(r'^api-token-refresh/', refresh_jwt_token),  # jwt刷新
     path('', include(router.urls)),

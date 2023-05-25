@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from datetime import date
 
 
 class User(AbstractUser):
@@ -20,6 +21,8 @@ class User(AbstractUser):
                                    verbose_name='角色')
     department = models.ForeignKey('user.Departments', null=True, blank=True, on_delete=models.SET_NULL,
                                    verbose_name='部门')
+    last_login = models.DateTimeField(verbose_name='上次登录时间', default=date.today)
+    date_joined = models.DateTimeField(verbose_name='注册时间', default=date.today)
 
     class Meta:
         verbose_name = '用户'

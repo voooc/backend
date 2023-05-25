@@ -18,13 +18,14 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticate
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from apps.utils.permissions import IsOwnerOrReadOnly
-from backend.utils.permissions import IsOwnerOrReadOnlyInfo, IsAdminOrReadOnly
+from backend.utils.permissions import IsOwnerOrReadOnlyInfo, IsAdminOrReadOnly, IsAdminUser
 from rest_framework import status, mixins
 from django_filters.rest_framework import DjangoFilterBackend
 from user.filter import LikeFilterBackend
 from rest_framework.filters import SearchFilter
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from datetime import date, timedelta
 
 
 class Login(ObtainJSONWebToken):
@@ -61,6 +62,8 @@ class Login(ObtainJSONWebToken):
                 request.session.set_expiry(None)
             else:
                 request.session.set_expiry(0)
+            user.last_login = date.today()
+            user.save()
             return response
         else:
             if response.data.get('non_field_errors'):
@@ -473,4 +476,22 @@ class UserLike(mixins.ListModelMixin ,GenericViewSet):
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class UserTotalCountView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        # 获取所有用户总数
+        count = User.objects.filter(is_active=True).count()
+        now_date = date.today()
+        now_register = User.objects.filter(date_joined__gte=now_date).count()
+        # 获取当日登录用户数量  last_login记录最后登录时间
+        now_count = User.objects.filter(last_login__gte=now_date).count()
+        return Response({
+            'count': count,
+            'now_count': now_count,
+            'now_register': now_register,
+        })
+
 

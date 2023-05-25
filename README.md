@@ -13,3 +13,5 @@ service mysql restart
 uwsgi --ini /home/project/uwsgi/lab.ini
 # 启动
 sudo /usr/local/nginx/sbin/nginx -s stop
+# nginx
+ps -ef|grep nginx

@@ -3,17 +3,38 @@ from news.models import News, Banner, Announcement, Awards
 from news.serializers import NewsSerializer, BannerSerializer, NewsRetrieveSerializer, AnnouncementSerializer, AwardsSerializer
 from rest_framework.response import Response
 from rest_framework import viewsets, status
+from django.conf import settings
 
 
 class NewsViewSet(viewsets.ModelViewSet):
-    queryset = News.objects.all().filter(is_published=True).order_by('-add_time')
+    queryset = News.objects.all().order_by('-add_time')
     permission_classes = [IsAdminOrReadOnly]
+
+    def get_queryset(self):
+        queryset = self.queryset.all()
+        # 获取请求参数中的排序字段
+        show = self.request.query_params.get('show')
+        if show:
+            queryset.filter(is_published=True)
+        else:
+            queryset.filter(is_published=False)
+        return queryset
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return NewsRetrieveSerializer
         else:
             return NewsSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        news = News.objects.filter(id=serializer.data['id'])
+        url = settings.HOST + 'news/' + str(serializer.data['id'])
+        news.update(url=url)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -43,6 +64,13 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
     serializer_class = AnnouncementSerializer
     permission_classes = [IsAdminOrReadOnly]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -50,7 +78,7 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
 
 
 class BannerViewSet(viewsets.ModelViewSet):
-    queryset = Banner.objects.all()
+    queryset = Banner.objects.all().order_by('order')
     serializer_class = BannerSerializer
     permission_classes = [IsAdminOrReadOnly]
 

@@ -68,9 +68,10 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tags_id_data = validated_data.pop('tags_id')
         article = Article.objects.create(**validated_data)
-        article.url = article.url+'/#/article/'+str(article.id)
         for tags_data in tags_id_data:
             article.tags.add(tags_data)
+        article.save()
+        article.url = article.url + '/#/article/' + str(article.id)
         article.save()
         return article
 
