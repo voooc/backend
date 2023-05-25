@@ -23,7 +23,7 @@ urlpatterns = [
     path(f'{base_api}user/', include('user.urls')),  # 用户模块
     path(f'{base_api}', include('article.urls')),  # 博客模块
     path(f'{base_api}', include('news.urls')),  # 博客模块
-	path("index/", ES.as_view(), name="index"),
+	path(f"{base_api}index/", ES.as_view(), name="index"),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),  # 配置文件上传html显示,
     re_path(rf'^{base_api}swagger(?P<format>\.json|\.yaml)$',
             xframe_options_exempt(schema_view.without_ui(cache_timeout=0)), name='schema-json'),

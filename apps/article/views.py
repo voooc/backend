@@ -36,7 +36,10 @@ class ArticleSearch:
                     'content': i.content,
                 }
             } for i in query_obj]
-        bulk(es, action, request_timeout=1000)
+        try:
+            bulk(es, action, request_timeout=1000)
+        except Exception as e:
+            print(e)
         print("导入成功")
 
     @staticmethod
@@ -91,9 +94,10 @@ class ArticleView(viewsets.ModelViewSet):
     permission_classes = [IsOwner]
     filter_backends = (DjangoFilterBackend, SearchFilter, ArticleFilterBackend)
     search_fields = ['title', 'author__name', 'desc']
+    queryset = Article.objects.all()
 
     def get_queryset(self):
-        queryset = Article.objects.all()
+        queryset = self.queryset.all()
         # 获取请求参数中的排序字段
         sort_by = self.request.query_params.get('ordering')
         # es.indices.close(index='article')
@@ -106,7 +110,6 @@ class ArticleView(viewsets.ModelViewSet):
         elif sort_by == 'add_time':
             # 按照时间排序
             queryset = queryset.order_by('-add_time')
-
         search = self.request.query_params.get('query')
         if search:
             data = ArticleSearch.filter_msg(search, "article")
@@ -123,7 +126,7 @@ class ArticleView(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # 写url
         serializer.save(author=self.request.user)
-        ArticleSearch.import_index()
+        # ArticleSearch.import_index()
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()

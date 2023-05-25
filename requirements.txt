@@ -15,13 +15,15 @@ django-cors-headers==3.4.0
 uritemplate==3.0.1
 PyYAML==5.4
 itsdangerous==1.1.0
-celery==3.1.15
+celery==4.4.7
 pytz==2018.9
 redis==3.5.3
-oss2==2.17.0
+oss2=2.17.0
 django-mptt==0.14.0
 channels==3.0.4
 channels-redis==3.2.0
 django-elasticsearch-dsl==7.3
 elasticsearch-dsl==7.4.1
 setuptools==50.3.2
+eventlet==0.33.3
+kombu==3.0.37

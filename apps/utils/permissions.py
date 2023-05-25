@@ -30,7 +30,7 @@ class IsOwnerOr(permissions.BasePermission):
         if request.user.is_superuser:
             return True
         # Write permissions are only allowed to the owner of the snippet.
-        return obj.authors == request.user
+        return obj.author == request.user
 
 
 class IsOwnerOrRead(permissions.BasePermission):

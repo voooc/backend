@@ -2,8 +2,15 @@ import os
 from celery import Celery, platforms
 
 from django.conf import settings
+env = os.getenv('ENVIRONMENT')
+print(env)
+if env == 'development':
+    # 加载开发环境的设置文件
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings.dev')
+else:
+    # 加载生产环境的设置文件
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings.pro')
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 platforms.C_FORCE_ROOT = True  # 加上这一行
 # Celery的参数是你当前项目的名称
 app = Celery('backend')

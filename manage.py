@@ -2,13 +2,14 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-import asyncio
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+# import asyncio
+# asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 def main():
     # 检查环境变量
     env = os.getenv('ENVIRONMENT')
+    print(env)
     if env == 'development':
         # 加载开发环境的设置文件
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings.dev')

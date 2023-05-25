@@ -97,8 +97,8 @@ class Comment(MPTTModel):
         related_name='comments'
     )
     image = models.TextField(null=True, blank=True)
-    object_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, default='s')
-    object_id = models.CharField(max_length=128, default='s')
+    object_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    object_id = models.CharField(max_length=128, null=True, blank=True)
     content_object = GenericForeignKey(
         ct_field="object_type",
         fk_field="object_id"

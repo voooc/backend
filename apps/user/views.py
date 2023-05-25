@@ -221,12 +221,10 @@ class VeifyUserViewSet(
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-
         if getattr(instance, '_prefetched_objects_cache', None):
             instance._prefetched_objects_cache = {}
-
         msg = Message()
-        msg.user = User.objects.get(id=request.data.id)
+        msg.user = User.objects.get(id=serializer.data['id'])
         msg.message = '欢迎加入本站,在使用过程中有什么疑问,请联系管理员'
         msg.has_read = False
         msg.type = 'system'
