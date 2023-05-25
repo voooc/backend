@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth import logout
 from django.contrib.auth.hashers import make_password
-from article.tasks import send_register_email
+from article.tasks import send_register_email, send_verify_user
 from user.models import User, Departments, VerifyCode, Message, Follows, Roles
 from article.models import LikeDetail
 from user.serializers import UserCreateSerializer, DepartmentsSerializer, MessageSerializer, UserSerializer, \
@@ -25,8 +25,8 @@ from user.filter import LikeFilterBackend
 from rest_framework.filters import SearchFilter
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from datetime import date, timedelta
-
+from datetime import date
+from django.conf import settings
 
 class Login(ObtainJSONWebToken):
     """
@@ -224,10 +224,12 @@ class VeifyUserViewSet(
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+        user = User.objects.get(id=serializer.data['id'])
+        send_verify_user.delay(email=user.email, body='您在{0}网站的注册审核通过了哦~快去登录吧~'.format(settings.HOST), send_type='verify')
         if getattr(instance, '_prefetched_objects_cache', None):
             instance._prefetched_objects_cache = {}
         msg = Message()
-        msg.user = User.objects.get(id=serializer.data['id'])
+        msg.user = user
         msg.message = '欢迎加入本站,在使用过程中有什么疑问,请联系管理员'
         msg.has_read = False
         msg.type = 'system'
@@ -236,6 +238,8 @@ class VeifyUserViewSet(
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
+        user = User.objects.get(id=instance.id)
+        send_verify_user.delay(email=user.email, body='您在{0}网站的注册没有审核通过哦~'.format(settings.HOST), send_type='verify')
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
 

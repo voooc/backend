@@ -60,6 +60,24 @@ def send_register_email(email, username=None, token=None, send_type='register'):
 
 
 @app.task()
+def send_verify_user(email, body, send_type='verify'):
+    """
+    登录注册等邮件发送
+    :param email:
+    :return:
+    """
+    if send_type == 'verify':
+        email_title = '审核通知'
+        email_body = body
+        print('========发送邮件中')
+        send_status = send_mail(subject=email_title, message=email_body, from_email=settings.EMAIL_HOST_USER, recipient_list=[email])
+        print(send_status)
+        if send_status:
+            print('========发送成功')
+            pass
+
+
+@app.task()
 def error_email(title=None, body=None, email=None):
     email_title = title
     email_body = body
