@@ -126,7 +126,7 @@ class ArticleView(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # 写url
         serializer.save(author=self.request.user)
-        # ArticleSearch.import_index()
+        ArticleSearch.import_index()
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
