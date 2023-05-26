@@ -402,7 +402,7 @@ class UserView(mixins.RetrieveModelMixin,
                mixins.DestroyModelMixin,
                mixins.ListModelMixin,
                GenericViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.filter(is_active=True).all()
     serializer_class = UserSerializer
     authentication_classes = [JSONWebTokenAuthentication]
     permission_classes = [IsOwnerOrReadOnlyInfo]
@@ -431,6 +431,7 @@ class UserFollow(mixins.CreateModelMixin,
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_serializer_class(self):
+        print(self.action, 'wxj')
         if self.action == 'list':
             return FollowSerializer
         else:

@@ -12,12 +12,11 @@ import os
 from django.core.wsgi import get_wsgi_application
 
 env = os.getenv('ENVIRONMENT')
-print(env)
-if env == 'development':
-    # 加载开发环境的设置文件
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings.dev')
-else:
+if env == 'production':
     # 加载生产环境的设置文件
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings.pro')
+else:
+    # 加载开发环境的设置文件
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings.dev')
 
 application = get_wsgi_application()

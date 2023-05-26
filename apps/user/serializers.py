@@ -2,7 +2,7 @@
 from rest_framework import serializers
 from user.models import Message, Follows, User, Roles, Departments
 from django.contrib.auth.hashers import make_password
-from article.serializer import UserArticleSerializer, TagSerializer, CategorySerializer
+from article.serializer import UserArticleSerializer, ArticleSerializer, DiscussionSerializer
 from article.models import LikeDetail, Like, Article, Discussion, Comment
 from django.contrib.contenttypes.models import ContentType
 
@@ -184,20 +184,27 @@ class LikeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class LikeArticleSerializer(serializers.ModelSerializer):
-    author = UserArticleSerializer(read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
-    category = CategorySerializer(read_only=True)
-    add_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False, read_only=True)
-
-    class Meta:
-        model = Article
-        fields = '__all__'
-
-
 class LikeDetailSerializer(serializers.ModelSerializer):
     likes = LikeSerializer(read_only=True)
     user = UserSerializer(read_only=True)
+
+    def to_representation(self, instance):
+        res = super(LikeDetailSerializer, self).to_representation(instance=instance)
+        article = ContentType.objects.get(model='article')
+        discussion = ContentType.objects.get(model='discussion')
+        id = res.get('likes')['object_id']
+        type = res.get('likes')['object_type']
+        data = {}
+        if type == article.id:
+            model = Article.objects.get(id=id)
+            serializer = ArticleSerializer(instance=model, context={'request': self.context['request']})
+            data = serializer.data
+        elif type == discussion.id:
+            model = Discussion.objects.get(id=id)
+            serializer = DiscussionSerializer(instance=model, context={'request': self.context['request']})
+            data = serializer.data
+        res.setdefault('item', data)
+        return res
 
     class Meta:
         model = LikeDetail
