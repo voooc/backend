@@ -282,6 +282,7 @@ class UserComment(mixins.ListModelMixin, mixins.DestroyModelMixin, viewsets.Gene
         parent_comment = Comment.objects.get(id=instance.parent_id)
         parent_comment.comment -= 1
         parent_comment.save()
+        Message.objects.filter(link_id=instance.id).delete()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK, data={'count': clone_model.comment})
 

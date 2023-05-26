@@ -431,7 +431,6 @@ class UserFollow(mixins.CreateModelMixin,
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_serializer_class(self):
-        print(self.action, 'wxj')
         if self.action == 'list':
             return FollowSerializer
         else:
