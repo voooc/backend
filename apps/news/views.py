@@ -170,6 +170,23 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        queryset = self.filter_queryset(self.get_queryset())
+        # 获取前一篇文章
+        previous = queryset.filter(id__lt=instance.id).order_by('-id').first()
+        previous_id = {'id': previous.id, 'title': previous.title} if previous else None
+
+        # 获取后一篇文章
+        next = queryset.filter(id__gt=instance.id).order_by('id').first()
+        next_id = {'id': next.id, 'title': next.title} if next else None
+
+        response = serializer.data
+        response['previous'] = previous_id
+        response['next'] = next_id
+        return Response(response)
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
