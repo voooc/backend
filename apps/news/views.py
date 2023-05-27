@@ -161,6 +161,7 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
         show = self.request.query_params.get('is_published')
         if show:
             queryset.filter(is_published=True)
+        return queryset
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
