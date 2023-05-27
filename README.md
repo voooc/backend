@@ -17,4 +17,6 @@ ps -ef|grep nginx
 sudo /usr/local/nginx/sbin/nginx -s stop
 /usr/local/nginx/sbin/nginx
 # 启动elastisearch
+ps -ef|grep elastisearch
+su user-es
 /usr/local/elasticsearch-8.7.0/bin/elasticsearch -d
