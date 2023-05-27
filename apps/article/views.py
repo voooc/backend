@@ -66,7 +66,7 @@ class ArticleSearch:
         return res
 
 
-class ES(APIView):
+class ESArticle(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -75,9 +75,7 @@ class ES(APIView):
                 "properties": {
                     "id": {"type": "long", "index": "false"},
                      "title": {"type": "text", "analyzer": "ik_smart"},
-                     "digest": {"type": "text", "analyzer": "ik_smart"},
                      "content": {"type": "text", "analyzer": "ik_smart"},
-                     "image_url": {"type": "keyword"}
                 }
             },
             "settings": {

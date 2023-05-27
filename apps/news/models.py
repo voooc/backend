@@ -9,6 +9,7 @@ class News(models.Model):
     image = models.URLField(max_length=200, blank=True)
     desc = models.CharField(max_length=256, blank=True, null=True)
     url = models.CharField(max_length=200, blank=True, null=True)
+    view = models.PositiveIntegerField(default=0, verbose_name='阅读数量')
 
     class Meta:
         ordering = ('-add_time',)

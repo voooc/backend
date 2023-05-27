@@ -6,7 +6,8 @@ from drf_yasg import openapi
 from rest_framework import permissions
 from django.views.static import serve
 from drf_yasg.views import get_schema_view
-from article.views import ES
+from article.views import ESArticle
+from news.views import ESNews
 schema_view = get_schema_view(
     openapi.Info(
         title="实验室学习系统API",
@@ -23,7 +24,8 @@ urlpatterns = [
     path(f'{base_api}user/', include('user.urls')),  # 用户模块
     path(f'{base_api}', include('article.urls')),  # 博客模块
     path(f'{base_api}', include('news.urls')),  # 博客模块
-	path(f"{base_api}index/", ES.as_view(), name="index"),
+	path(f"{base_api}article_index/", ESArticle.as_view(), name="es_article"),
+    path(f"{base_api}new_index/", ESNews.as_view(), name='es_news'),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),  # 配置文件上传html显示,
     re_path(rf'^{base_api}swagger(?P<format>\.json|\.yaml)$',
             xframe_options_exempt(schema_view.without_ui(cache_timeout=0)), name='schema-json'),

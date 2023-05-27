@@ -34,7 +34,6 @@ class ArticleSerializer(serializers.ModelSerializer):
     add_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False, read_only=True)
 
     def to_representation(self, instance):
-        print(self.context)
         res = super(ArticleSerializer, self).to_representation(instance=instance)
         c = ContentType.objects.get(model='article')
         user = self.context["request"].user
