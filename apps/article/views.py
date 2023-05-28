@@ -1,6 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
-from backend.utils.permissions import IsOwner, IsAdminOrReadOnly
+from backend.utils.permissions import IsOwnerOr, IsAdminOrReadOnly
 from rest_framework.response import Response
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from user.models import Message
@@ -89,7 +89,7 @@ class ESArticle(APIView):
 
 
 class ArticleView(viewsets.ModelViewSet):
-    permission_classes = [IsOwner]
+    permission_classes = [IsOwnerOr]
     filter_backends = (DjangoFilterBackend, SearchFilter, ArticleFilterBackend)
     search_fields = ['title', 'author__name', 'desc']
     queryset = Article.objects.all()
@@ -255,7 +255,7 @@ class LikeView(APIView):
 
 class UserComment(mixins.ListModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = Comment.objects.all().order_by('-created')
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = CommentSerializer
 
     def get_queryset(self):
@@ -369,6 +369,7 @@ def update_fil_file(file):
 
 
 class UploadImageAPIView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def post(self, request):
         file = request.FILES.get('file').read()
@@ -378,7 +379,7 @@ class UploadImageAPIView(APIView):
 
 class DiscussionView(viewsets.ModelViewSet):
     authentication_classes = [JSONWebTokenAuthentication]
-    permission_classes = [IsOwner]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         # 写url

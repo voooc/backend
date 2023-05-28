@@ -17,8 +17,7 @@ from rest_framework.throttling import AnonRateThrottle
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-from apps.utils.permissions import IsOwnerOrReadOnly
-from backend.utils.permissions import IsOwnerOrReadOnlyInfo, IsAdminOrReadOnly, IsAdminUser
+from backend.utils.permissions import IsAdminOrReadOnly, IsAdminUser, IsOwnerOrReadOnly, IsSuperUser
 from rest_framework import status, mixins
 from django_filters.rest_framework import DjangoFilterBackend
 from user.filter import LikeFilterBackend
@@ -27,6 +26,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from datetime import date
 from django.conf import settings
+
 
 class Login(ObtainJSONWebToken):
     """
@@ -213,7 +213,7 @@ class VeifyUserViewSet(
                    mixins.DestroyModelMixin,
                    mixins.ListModelMixin,
                    GenericViewSet):
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsSuperUser]
     queryset = User.objects.filter(is_active=False)
     serializer_class = UserSerializer
     authentication_classes = [JSONWebTokenAuthentication]
@@ -306,7 +306,7 @@ class RoleViewSet(ModelViewSet):
 
     部门列表信息, status: 200(成功), return: 部门信息列表
     """
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsSuperUser]
     queryset = Roles.objects.all()
     serializer_class = RolesSerializer
 
@@ -355,7 +355,7 @@ class UserInfoView(APIView):
 class UseMessage(mixins.ListModelMixin, mixins.DestroyModelMixin, GenericViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly)  # 未登录禁止访问
+    permission_classes = (IsAuthenticated)  # 未登录禁止访问
     authentication_classes = [JSONWebTokenAuthentication, SessionAuthentication]
 
     def list(self, request, *args, **kwargs):
@@ -405,7 +405,7 @@ class UserView(mixins.RetrieveModelMixin,
     queryset = User.objects.filter(is_active=True).all()
     serializer_class = UserSerializer
     authentication_classes = [JSONWebTokenAuthentication]
-    permission_classes = [IsOwnerOrReadOnlyInfo]
+    permission_classes = [IsSuperUser]
     filter_backends = (DjangoFilterBackend, SearchFilter)
     search_fields = ['username']
 
@@ -466,9 +466,9 @@ class UserFollow(mixins.CreateModelMixin,
                 return Response(data={"message": '取消失败', 'follow_active': True}, status=status.HTTP_202_ACCEPTED)
 
 
-class UserLike(mixins.ListModelMixin ,GenericViewSet):
+class UserLike(mixins.ListModelMixin, GenericViewSet):
     queryset = LikeDetail.objects.all().order_by('-date')
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = LikeDetailSerializer
     filter_backends = (DjangoFilterBackend, LikeFilterBackend)
 

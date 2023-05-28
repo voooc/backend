@@ -13,13 +13,14 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         # so we'll always allow GET, HEAD or OPTIONS requests.
         if request.method in permissions.SAFE_METHODS:
             return True
-        if request.user.is_superuser:
-            return True
+        for i in request.user.get_roles_values():
+            if i in ['SUPER']:
+                return True
         # Write permissions are only allowed to the owner of the snippet.
-        return obj.user == request.user
+        return obj.author == request.user
 
 
-class IsOwner(permissions.BasePermission):
+class IsOwnerOr(permissions.BasePermission):
     """
     Custom permission to only allow owners of an object to edit it.
     """
@@ -29,23 +30,11 @@ class IsOwner(permissions.BasePermission):
         # so we'll always allow GET, HEAD or OPTIONS requests.
         if request.method in permissions.SAFE_METHODS:
             return True
-        if request.user.is_superuser:
-            return True
+        for i in request.user.get_roles_values():
+            if i in ['SUPER']:
+                return True
         # Write permissions are only allowed to the owner of the snippet.
         return obj.author == request.user
-
-
-class IsOwnerOrReadOnlyInfo(permissions.BasePermission):
-
-    def has_object_permission(self, request, view, obj):
-        # Read permissions are allowed to any request,
-        # so we'll always allow GET, HEAD or OPTIONS requests.
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        if request.user.is_superuser:
-            return True
-        # Write permissions are only allowed to the owner of the snippet.
-        return obj == request.user
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
@@ -66,5 +55,14 @@ class IsAdminUser(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         for i in request.user.get_roles_values():
             if i in ['ADMIN', 'SUPER']:
+                return True
+        return False
+
+
+class IsSuperUser(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        for i in request.user.get_roles_values():
+            if i in ['SUPER']:
                 return True
         return False

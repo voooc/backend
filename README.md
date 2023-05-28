@@ -5,6 +5,7 @@ python manage.py migrate
 source venv/bin/activate
 celery -A backend worker -l info -P eventlet
 nohup celery -A backend worker -P gevent -c 1000 >celery.log 2>&1 &
+退出时候输入exit，不直接关闭
 # 设置环境
 set ENVIRONMENT=development
 # 加载uwsgi
