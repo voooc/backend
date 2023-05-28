@@ -355,7 +355,7 @@ class UserInfoView(APIView):
 class UseMessage(mixins.ListModelMixin, mixins.DestroyModelMixin, GenericViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    permission_classes = (IsAuthenticated)  # 未登录禁止访问
+    permission_classes = [IsAuthenticated]  # 未登录禁止访问
     authentication_classes = [JSONWebTokenAuthentication, SessionAuthentication]
 
     def list(self, request, *args, **kwargs):
